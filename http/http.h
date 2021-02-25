@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <map>
+#include "../log/log.h"
 
 namespace http {
 
@@ -33,10 +34,10 @@ namespace http {
             CONNECT,
             PATH
         };
-        enum LINE_CODE {
-            LINE_OK,
-            LINE_ERROR,
-            LINE_EMPTY
+        enum PARSE_CODE {
+            PARSE_DONE,
+            PARSE_ERROR,
+            PARSE_EMPTY
         };
     };
 
@@ -57,15 +58,6 @@ namespace http {
 
         static HTTP_PACKET::HTTP_CODE LINE_STATE(std::string str);
 
-        HTTP_PACKET::HTTP_CODE PACKET_BLOCK_STATE();
-
-        static HTTP_PACKET::HTTP_CODE METHOD_STATE(std::string str);
-
-        static HTTP_PACKET::HTTP_CODE HEADER_STATE(std::string str);
-
-        static HTTP_PACKET::HTTP_CODE CONTENT_STATE(std::string str);
-
-        static PACKET_STATE m_packet_state;
     private:
     };
 
@@ -73,7 +65,7 @@ namespace http {
     public:
         void init();
 
-        // 读取报文
+        // 初步解析报文
         void read_packet(char *packet);
 
         void get_line();
@@ -82,24 +74,16 @@ namespace http {
 
         void get_content();
 
-
-        bool put_packet_state(HTTP_STATE_MACHINE::PACKET_STATE pState);
-
-        HTTP_PACKET::HTTP_CODE MAIN_STATE(std::string str);
-
         // 解析报文请求
-        HTTP_PACKET::LINE_CODE parse_method(std::string text);
+        HTTP_PACKET::PARSE_CODE parse_method(std::string text);
 
         // 解析报文报头
-        HTTP_PACKET::LINE_CODE parse_header(std::string text);
+        HTTP_PACKET::PARSE_CODE parse_header(std::string text);
 
         // 解析报文内容
-        HTTP_PACKET::LINE_CODE parse_content(std::string text);
+        HTTP_PACKET::PARSE_CODE parse_content(std::string text);
 
     private:
-
-        HTTP_STATE_MACHINE::PACKET_STATE m_packet_state;
-
         HTTP_PACKET::HTTP_METHOD m_method;
         std::string m_url;
         std::string m_protocol;
