@@ -6,6 +6,7 @@
 #define WEBSEVER_HTTP_H
 
 #include <iostream>
+#include <map>
 
 namespace http {
 
@@ -32,6 +33,11 @@ namespace http {
             CONNECT,
             PATH
         };
+        enum LINE_CODE {
+            LINE_OK,
+            LINE_ERROR,
+            LINE_EMPTY
+        };
     };
 
     class HTTP_STATE_MACHINE {
@@ -48,10 +54,6 @@ namespace http {
             LINE_ERROR,
             LINE_EMPTY
         };
-
-        static bool put_packet_state(PACKET_STATE pState);
-
-        static HTTP_PACKET::HTTP_CODE MAIN_STATE(std::string str);
 
         static HTTP_PACKET::HTTP_CODE LINE_STATE(std::string str);
 
@@ -80,20 +82,34 @@ namespace http {
 
         void get_content();
 
-    private:
-        // 解析报文请求行
-        HTTP_PACKET::HTTP_CODE parse_line(char *line);
+
+        bool put_packet_state(HTTP_STATE_MACHINE::PACKET_STATE pState);
+
+        HTTP_PACKET::HTTP_CODE MAIN_STATE(std::string str);
+
+        // 解析报文请求
+        HTTP_PACKET::LINE_CODE parse_method(std::string text);
 
         // 解析报文报头
-        HTTP_PACKET::HTTP_CODE parse_header(char *header);
+        HTTP_PACKET::LINE_CODE parse_header(std::string text);
 
         // 解析报文内容
-        HTTP_PACKET::HTTP_CODE parse_content(char *content);
+        HTTP_PACKET::LINE_CODE parse_content(std::string text);
 
-        std::string m_line;
-        std::string m_header;
-        std::string m_content;
+    private:
 
+        HTTP_STATE_MACHINE::PACKET_STATE m_packet_state;
+
+        HTTP_PACKET::HTTP_METHOD m_method;
+        std::string m_url;
+        std::string m_protocol;
+        std::string m_version;
+
+        std::map<std::string, std::string> m_headers;
+
+        std::map<std::string, std::string> m_requests;
+
+        std::string m_body;
 
     };
 
