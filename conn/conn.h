@@ -7,10 +7,10 @@
 
 #include <sys/socket.h>
 
-namespace conn {
-    class http {
+namespace http_conn {
+    class conn {
     public:
-        http(int port = 9006);
+        void init(int port = 9006);
 
     };
 }

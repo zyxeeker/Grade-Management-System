@@ -8,13 +8,18 @@
 #include <cstring>
 #include <unistd.h>
 #include "conn.h"
+#include "../http/http.h"
 
-namespace conn {
-    http::http(int port) {
+namespace http_conn {
+    void conn::init(int port) {
+        http::Http http_packet;
+
 
         int listenfd, conn;
         struct sockaddr_in addr;
         char buff[4096];
+        int len;
+        int on = 1;
 
         // socket
         if ((listenfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
@@ -26,15 +31,15 @@ namespace conn {
         addr.sin_port = htons(port);
         addr.sin_addr.s_addr = INADDR_ANY;
 
-//        struct linger tmp = {0, 1};
-//        setsockopt(listenfd, SOL_SOCKET, SO_LINGER, &tmp, sizeof(tmp));
+        // 允许端口复用
+        setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
 
         if (bind(listenfd, (struct sockaddr *) &addr, sizeof(addr)) == -1)
-            std::cout << "ERROR" << std::endl;
+            std::cout << "BIND　ERROR" << std::endl;
 
         // listen
         if (listen(listenfd, 5) == -1) {
-            std::cout << "ERROR" << std::endl;
+            std::cout << "LISTEN　ERROR" << std::endl;
         }
 
         // accept
@@ -52,17 +57,17 @@ namespace conn {
                 inet_ntop(AF_INET, &clientAddr.sin_addr, clientIP, INET_ADDRSTRLEN);
             std::cout << "...connect " << clientIP << ":" << ntohs(clientAddr.sin_port) << std::endl;
 
-            char buf[255];
+
             while (true) {
-                memset(buf, 0, sizeof(buf));
-                int len = recv(conn, buf, sizeof(buf), 0);
-                buf[len] = '\0';
-                if (strcmp(buf, "exit") == 0) {
+                memset(buff, 0, sizeof(buff));
+                len = recv(conn, buff, sizeof(buff), 0);
+
+                buff[len - 1] = '\0';
+                if (strcmp(buff, "\0") == 0) {
                     std::cout << "...disconnect " << clientIP << ":" << ntohs(clientAddr.sin_port) << std::endl;
                     break;
                 }
-                std::cout << buf << std::endl;
-                send(conn, buf, len, 0);
+                http_packet.parse_packet(buff);
             }
             close(conn);
         }
