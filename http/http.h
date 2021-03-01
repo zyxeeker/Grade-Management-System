@@ -10,7 +10,6 @@
 #include "../log/log.h"
 
 namespace http {
-
     class HTTP_PACKET {
     public:
         enum HTTP_CODE {
@@ -24,7 +23,7 @@ namespace http {
             CLOSED_CONNECTION
         };
         enum HTTP_METHOD {
-            GET,
+            GET = 0,
             POST,
             PUT,
             DELETE,
@@ -39,40 +38,21 @@ namespace http {
             PARSE_ERROR,
             PARSE_EMPTY
         };
-    };
-
-    class HTTP_STATE_MACHINE {
-    public:
-        // 主状态机(判断报文)
-        enum PACKET_STATE {
-            CHECK_METHOD,
-            CHECK_HEADER,
-            CHECK_CONTENT
-        };
-        // 从状态机(判断报文语句是否正确)
+        // 报文语句判断
         enum LINE_STATE {
             LINE_OK,
             LINE_ERROR,
             LINE_EMPTY
         };
-
-        static HTTP_PACKET::HTTP_CODE LINE_STATE(std::string str);
-
-    private:
     };
 
     class Http {
     public:
-        void init();
+        // 运行进程
+        void process();
 
         // 初步解析报文
-        void read_packet(char *packet);
-
-        void get_line();
-
-        void get_header();
-
-        void get_content();
+        void parse_packet(char *packet);
 
         // 解析报文请求
         HTTP_PACKET::PARSE_CODE parse_method(std::string text);
@@ -82,6 +62,9 @@ namespace http {
 
         // 解析报文内容
         HTTP_PACKET::PARSE_CODE parse_content(std::string text);
+
+        // 返回请求
+        HTTP_PACKET::HTTP_CODE do_request();
 
     private:
         HTTP_PACKET::HTTP_METHOD m_method;

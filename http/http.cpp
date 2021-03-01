@@ -5,12 +5,6 @@
 #include "http.h"
 
 namespace http {
-
-    // 从状态机
-    HTTP_PACKET::HTTP_CODE HTTP_STATE_MACHINE::LINE_STATE(std::string str) {
-
-    }
-
     // 解析报文请求
     HTTP_PACKET::PARSE_CODE Http::parse_method(std::string text) {
         int m = 0;
@@ -45,9 +39,7 @@ namespace http {
             return HTTP_PACKET::PARSE_ERROR;
         }
 
-
         return HTTP_PACKET::PARSE_DONE;
-
     }
 
     // 解析报文报头
@@ -59,7 +51,7 @@ namespace http {
                 if (i == ':') {
                     if (text[m + 1] == ' ')
                         ++m;
-                    std::string key = text.substr(0, m);
+                    std::string key = text.substr(0, m - 1);
                     std::string data = text.substr(m + 1);
                     m_headers[key] = data;
 
@@ -105,7 +97,7 @@ namespace http {
     }
 
     // 解析报文
-    void Http::read_packet(char *packet) {
+    void Http::parse_packet(char *packet) {
         int i;
         int begin_index = 0;
         std::string text;
@@ -130,7 +122,7 @@ namespace http {
         for (i = 0; i < str1.length(); ++i) {
             if (str1[i] == '\r') {
                 if (str1[i + 2] == '\r') {
-                    str1 = str1.substr(i + 4);
+                    str1 = str1.substr(i + 3);
                     break;
                 }
 
@@ -152,5 +144,11 @@ namespace http {
             Logger::Log(Logger::LogLevel::ERROR, threadId, "CONTENT BAD PARSE!");
         }
     }
+
+    // 返回请求
+    HTTP_PACKET::HTTP_CODE Http::do_request() {
+
+    }
+
 
 }
