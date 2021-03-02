@@ -159,11 +159,10 @@ namespace http {
         if (!(p_dir = opendir(path.c_str())))
             std::cout << std::strerror(errno) << std::endl;
         while ((ptr = readdir(p_dir)) != 0) {
-            if (ptr->d_name == "css" || ptr->d_name == "js")
-                continue;
+
             if (strcmp(ptr->d_name, ".") != 0 && strcmp(ptr->d_name, "..") != 0) {
                 std::string file_name = ptr->d_name;
-                if (file_name == "css" || file_name == "js")
+                if (file_name == "images" || file_name == "css" || file_name == "js")
                     continue;
                 std::string file_path = path + file_name;
                 std::ifstream file(file_path);
@@ -188,9 +187,9 @@ namespace http {
 
     bool Http::init() {
         m_html = open_file("/");
-//        std::cout << m_html["/404.html"] <<std::endl;
         m_css = open_file("/css/");
 //        m_js = open_file("/js/");
+        m_image = open_file("/images/");
     }
 
     // 返回请求
@@ -204,17 +203,23 @@ namespace http {
                          "Content-Type: text/css\r\n"
                          "\r\n";
                 header += m_css[m_url];
-//                std::cout << header << std::endl;
                 return header;
             }
-//            if (!m_url.compare(0, 5, "/js/", 0, 5)) {
-//                header += m_js[m_url];
-//                std::cout << header << std::endl;
-//                return header;
-//            }
+            if (!m_url.compare(0, 8, "/images/", 0, 8)) {
+                header = "HTTP/1.1 200 OK\r\n"
+                         "Content-Type: images/gif\r\n"
+                         "\r\n";
+                header += m_image[m_url];
+                return header;
+            }
+            if (!m_url.compare(0, 5, "/js/", 0, 5)) {
+                header += m_js[m_url];
+                std::cout << header << std::endl;
+                return header;
+            }
             if (m_url == "/") {
                 header += m_html["/404.html"];
-//                std::cout << header << std::endl;
+
                 return header;
             }
 //            if (!m_url.compare(m_url.length()-4, 3, "htm", 0, 3)) {
