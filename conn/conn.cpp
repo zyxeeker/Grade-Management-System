@@ -14,6 +14,7 @@ namespace http_conn {
     void conn::init(int port) {
         http::Http http_packet;
 
+        http_packet.init();
 
         int listenfd, conn;
         struct sockaddr_in addr;
@@ -59,6 +60,7 @@ namespace http_conn {
         char clientIP[INET_ADDRSTRLEN] = "";
         struct sockaddr_in clientAddr;
         socklen_t clientAddrLen = sizeof(clientAddr);
+
         int i = 0;
 
         wait_event = new epoll_event[10];

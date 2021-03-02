@@ -48,6 +48,8 @@ namespace http {
 
     class Http {
     public:
+        bool init();
+
         // 运行进程
         void process();
 
@@ -64,7 +66,10 @@ namespace http {
         HTTP_PACKET::PARSE_CODE parse_content(std::string text);
 
         // 返回请求
-        HTTP_PACKET::HTTP_CODE do_request();
+        std::string do_request();
+
+        // 打开源文件
+        std::map<std::string, std::string> open_file(std::string folder_path);
 
     private:
         HTTP_PACKET::HTTP_METHOD m_method;
@@ -73,10 +78,13 @@ namespace http {
         std::string m_version;
 
         std::map<std::string, std::string> m_headers;
-
         std::map<std::string, std::string> m_requests;
 
         std::string m_body;
+
+        std::map<std::string, std::string> m_html;
+        std::map<std::string, std::string> m_css;
+        std::map<std::string, std::string> m_js;
 
     };
 
