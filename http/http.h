@@ -85,6 +85,7 @@ namespace http {
         std::map<std::string, std::string> m_html;
         std::map<std::string, std::string> m_css;
         std::map<std::string, std::string> m_js;
+        std::map<std::string, std::string> m_image;
 
     };
 
