@@ -1,0 +1,2 @@
+port: 9006
+max_connections: 16
