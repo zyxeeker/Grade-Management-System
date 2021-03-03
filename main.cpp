@@ -2,8 +2,24 @@
 #include "sql/sql.h"
 #include <mysql/mysql.h>
 #include <map>
+#include "http/http.h"
+#include "conn/conn.h"
+#include <fstream>
+#include <errno.h>
+#include <cstring>
+#include <iterator>
+#include <codecvt>
+#include <locale>
+
+#include <sys/types.h>
+#include <dirent.h>
+#include <node/parse.h>
+#include <yaml.h>
+#include <vector>
 
 MYSQL_RES *res;
+
+const std::string SERVER_CONF = "/root/sync/webServer/config.yaml";
 
 int main() {
     std::map<std::string, std::string> users;
@@ -31,6 +47,14 @@ int main() {
     }
     std::cout << users["name"];
 
+
+////
+
+    YAML::Node config = YAML::LoadFile(SERVER_CONF);
+    int port = config["port"].as<int>();
+    int max_connections = config["max_connections"].as<int>();
+    http_conn::conn test;
+    test.init(max_connections, port);
 
     return 0;
 }
