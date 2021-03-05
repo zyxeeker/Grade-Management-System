@@ -8,6 +8,7 @@
 #include <iostream>
 #include <map>
 #include "../log/log.h"
+#include "../server.h"
 
 namespace http {
     class HTTP_PACKET {
@@ -48,8 +49,6 @@ namespace http {
 
     class Http {
     public:
-        bool init();
-
         // 运行进程
         void process();
 
@@ -68,8 +67,6 @@ namespace http {
         // 返回请求
         std::string do_request();
 
-        // 打开源文件
-        std::map<std::string, std::string> open_file(std::string folder_path);
 
     private:
         HTTP_PACKET::HTTP_METHOD m_method;
@@ -81,12 +78,6 @@ namespace http {
         std::map<std::string, std::string> m_requests;
 
         std::string m_body;
-
-        std::map<std::string, std::string> m_html;
-        std::map<std::string, std::string> m_css;
-        std::map<std::string, std::string> m_js;
-        std::map<std::string, std::string> m_image;
-
     };
 
 }

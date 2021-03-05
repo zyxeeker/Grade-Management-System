@@ -8,6 +8,12 @@
 #include <cstring>
 #include <fstream>
 
+const std::string OK = " 200 OK\r\n";
+const std::string BAD_REQUEST = " 400 Bad Request\r\n";
+const std::string MOVED_PERMANENTLY = " 301 Moved Permanently\r\n";
+const std::string NOT_FOUND = " 404 Not Found\r\n";
+
+
 namespace http {
     // 解析报文请求
     HTTP_PACKET::PARSE_CODE Http::parse_method(std::string text) {
@@ -149,85 +155,38 @@ namespace http {
         }
     }
 
-    // 读取文件
-    std::map<std::string, std::string> Http::open_file(std::string folder_path) {
-        std::map<std::string, std::string> file_list;
-        std::string path = "/root/sync/webServer/root" + folder_path;
-
-        DIR *p_dir;
-        struct dirent *ptr;
-        if (!(p_dir = opendir(path.c_str())))
-            std::cout << std::strerror(errno) << std::endl;
-        while ((ptr = readdir(p_dir)) != 0) {
-
-            if (strcmp(ptr->d_name, ".") != 0 && strcmp(ptr->d_name, "..") != 0) {
-                std::string file_name = ptr->d_name;
-                if (file_name == "images" || file_name == "css" || file_name == "js")
-                    continue;
-                std::string file_path = path + file_name;
-                std::ifstream file(file_path);
-
-                if (!file.is_open())
-                    std::cout << std::strerror(errno) << std::endl;
-
-                std::istreambuf_iterator<char> begin(file);
-                std::istreambuf_iterator<char> end;
-                std::string some_str(begin, end);
-
-                file_list[folder_path + file_name] = some_str;
-//                std::cout << folder_path + file_name <<std::endl;
-//                std::cout << file_list[folder_path + file_name] <<std::endl;
-            }
-
-        }
-        closedir(p_dir);
-        return file_list;
-
-    }
-
-    bool Http::init() {
-        m_html = open_file("/");
-        m_css = open_file("/css/");
-//        m_js = open_file("/js/");
-        m_image = open_file("/images/");
-    }
-
     // 返回请求
     std::string Http::do_request() {
-        std::string header = "HTTP/1.1 200 OK\r\n"
-                             "Content-Type: text/html; charset=UTF-8\r\n"
-                             "\r\n";
+        std::string header;
+        std::string type;
+
         if (m_method == HTTP_PACKET::GET) {
-            if (!m_url.compare(0, 5, "/css/", 0, 5)) {
-                header = "HTTP/1.1 200 OK\r\n"
-                         "Content-Type: text/css\r\n"
-                         "\r\n";
-                header += m_css[m_url];
-                return header;
-            }
-            if (!m_url.compare(0, 8, "/images/", 0, 8)) {
-                header = "HTTP/1.1 200 OK\r\n"
-                         "Content-Type: images/gif\r\n"
-                         "\r\n";
-                header += m_image[m_url];
-                return header;
-            }
-            if (!m_url.compare(0, 5, "/js/", 0, 5)) {
-                header += m_js[m_url];
-                std::cout << header << std::endl;
-                return header;
-            }
-            if (m_url == "/") {
-                header += m_html["/404.html"];
+            try {
+                std::string style = ".css";
+                std::string html = ".htm";
+                std::string image = ".jpg";
+                std::string js = ".js";
 
+                if (m_url.find(style) != std::string::npos)
+                    type = "Content-Type: text/css\r\n";
+                if (m_url.find(html) != std::string::npos)
+                    type = "Content-Type: text/html\r\n";
+                if (m_url.find(image) != std::string::npos)
+                    type = "Content-Type: image/*\r\n";
+                if (m_url.find(js) != std::string::npos)
+                    type = "Content-Type: application/javascript\r\n";
+                header = "HTTP/1.1" + OK + type + "\r\n";
+                header += server::server_init::m_files[m_url];
+//                std::cout << header << std::endl;
+//                std::cout << m_url << std::endl;
+//                std::cout << server::server_init::m_files[m_url] << std::endl;
+                return header;
+//                }
+
+            } catch (...) {
+                header = "HTTP/1.1" + BAD_REQUEST;
                 return header;
             }
-//            if (!m_url.compare(m_url.length()-4, 3, "htm", 0, 3)) {
-//                header += m_html[m_url];
-//                return header;
-//            }
-
-
         }
 
     }

@@ -67,7 +67,7 @@ namespace http_conn {
                         std::cout << "...disconnect " << m_clientIP << ":" << ntohs(m_clientAddr.sin_port) << std::endl;
                         break;
                     }
-//                    std::cout << buff << std::endl;
+                    std::cout << m_buff << std::endl;
                     // 解析报头
                     m_http_packet.parse_packet(m_buff);
                     // 返回
@@ -82,8 +82,6 @@ namespace http_conn {
     }
 
     void conn::init(int MAX_CONNECTIONS, int port) {
-        m_http_packet.init();
-
         socket_init(port);
         // epoll启动
         epoll(MAX_CONNECTIONS);
