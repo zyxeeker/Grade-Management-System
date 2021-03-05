@@ -1,11 +1,16 @@
-# Grade-Management-System(成绩管理系统)
+## 介绍
+​
+<div align="center">
+<h1>Grade-Management-System</h1>
+<p>纯用C++开发的成绩管理系统</p>
+    
+![GitHub top language](https://img.shields.io/github/languages/top/zyxeeker/Grade-Management-System?logo=c&style=for-the-badge)
+![](https://img.shields.io/badge/Ubuntu-18.04-orange?logo=ubuntu&style=for-the-badge)
+![](https://img.shields.io/badge/MySQL-5.7.33-orange?logo=mysql&style=for-the-badge)
+![GitHub language count](https://img.shields.io/github/languages/count/zyxeeker/Grade-Management-System?style=for-the-badge)
+![GitHub last commit](https://img.shields.io/github/last-commit/zyxeeker/Grade-Management-System?style=for-the-badge)
 
-![GitHub top language](https://img.shields.io/github/languages/top/zyxeeker/Grade-Management-System?style=flat-square)
-![GitHub language count](https://img.shields.io/github/languages/count/zyxeeker/Grade-Management-System?style=flat-square)
-![GitHub last commit](https://img.shields.io/github/last-commit/zyxeeker/Grade-Management-System?style=flat-square)
-![](https://img.shields.io/badge/Ubuntu-18.04-orange?style=flat-square)
-![](https://img.shields.io/badge/MySQL-5.7.33-orange?style=flat-square)
-
+</div>
 由学校的课程设计改造而来，原版本为`Python`，`C++`版本加入服务器
 
 后面再继续完善说明
