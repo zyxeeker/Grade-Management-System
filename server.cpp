@@ -43,8 +43,7 @@ namespace server {
                 if (strcmp(ptr->d_name, ".") != 0 && strcmp(ptr->d_name, "..") != 0) {
                     std::string file_name = ptr->d_name;
                     if (ptr->d_type == DT_DIR) {
-                        std::cout << ptr->d_name << std::endl;
-                        m_dir.push("/" + file_name + "/");
+                        m_dir.push(path_tmp + file_name + "/");
                         continue;
                     }
                     std::string file_path = path_cur + file_name;
