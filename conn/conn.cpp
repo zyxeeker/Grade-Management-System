@@ -35,60 +35,74 @@ namespace http_conn {
     }
 
 
-    int conn::epoll(int MAX_CONNECTIONS) {
+    int conn::epoll() {
         m_epoll_fd = epoll_create1(EPOLL_CLOEXEC);
         m_event.data.fd = m_listen_fd;
         m_event.events = EPOLLIN;
         epoll_ctl(m_epoll_fd, EPOLL_CTL_ADD, m_listen_fd, &m_event);
-        m_wait_event = new epoll_event[MAX_CONNECTIONS];
+        m_wait_event = new epoll_event[m_MAX_CONNECTIONS];
 
     }
 
-    bool conn::socket_start(int MAX_CONNECTIONS) {
+    void conn::process() {
+        req re2;
+        while (!client.empty()) {
+            re2 = client.front();
+            client.pop();
+            // 解析报头
+            m_http_packet.parse_packet(re2.text);
+            // 返回
+            m_header = m_http_packet.do_request();
+            std::cout << re2.num << std::endl;
+            send(re2.num, m_header.c_str(), m_header.length(), 0);
+            close(re2.num);
+        }
+    }
+
+
+    bool conn::socket_start() {
+        int i = 0;
         while (true) {
-            int event_count = epoll_wait(m_epoll_fd, m_wait_event, MAX_CONNECTIONS, -1);
+//            m_thread_pool.append_work(this);
+            int event_count = epoll_wait(m_epoll_fd, m_wait_event, m_MAX_CONNECTIONS, -1);
 
             for (int j = 0; j < event_count; ++j) {
                 if (m_wait_event[j].data.fd == m_listen_fd) {
-                    m_event.events = EPOLLIN;
-                    m_event.data.fd = m_conn;
-                    epoll_ctl(m_epoll_fd, EPOLL_CTL_ADD, m_epoll_fd, &m_event);
+                    while (true) {
+                        m_conn = accept(m_listen_fd, (struct sockaddr *) &m_clientAddr, &m_clientAddrLen);
+                        if (m_conn < 0) break;
 
-                    m_conn = accept(m_listen_fd, (struct sockaddr *) &m_clientAddr, &m_clientAddrLen);
-                    std::cout << "...listening" << std::endl;
-                    inet_ntop(AF_INET, &m_clientAddr.sin_addr, m_clientIP, INET_ADDRSTRLEN);
-                    std::cout << "...connect " << m_clientIP << ":" << ntohs(m_clientAddr.sin_port) << std::endl;
+                        memset(m_buff, 0, sizeof(m_buff));
+                        m_recv_len = recv(m_conn, m_buff, sizeof(m_buff), 0);
+                        m_buff[m_recv_len - 1] = '\0';
 
-                    memset(m_buff, 0, sizeof(m_buff));
-                    m_recv_len = recv(m_conn, m_buff, sizeof(m_buff), 0);
+                        req re1;
+                        re1.num = m_conn;
+                        re1.text = m_buff;
 
-                    m_buff[m_recv_len - 1] = '\0';
-                    if (strcmp(m_buff, "\0") == 0) {
-                        std::cout << "...disconnect " << m_clientIP << ":" << ntohs(m_clientAddr.sin_port) << std::endl;
-                        break;
+                        client.push(re1);
+                        m_thread_pool.append_work(this);
                     }
-                    std::cout << m_buff << std::endl;
-                    // 解析报头
-                    m_http_packet.parse_packet(m_buff);
-                    // 返回
-                    m_header = m_http_packet.do_request();
 
-                    send(m_conn, m_header.c_str(), m_header.length(), 0);
+
                 }
-                epoll_ctl(m_epoll_fd, EPOLL_CTL_DEL, m_conn, NULL);
-                close(m_conn);
             }
+            delete[] m_wait_event;
+            close(m_listen_fd);
         }
     }
 
     void conn::init(int MAX_CONNECTIONS, int port) {
+        m_MAX_CONNECTIONS = MAX_CONNECTIONS;
+
         socket_init(port);
         // epoll启动
-        epoll(MAX_CONNECTIONS);
+        epoll();
 
-        socket_start(MAX_CONNECTIONS);
 
-        delete[] m_wait_event;
-        close(m_listen_fd);
+        socket_start();
+
+//        delete[] m_wait_event;
+//        close(m_listen_fd);
     }
 }
