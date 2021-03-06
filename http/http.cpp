@@ -107,12 +107,10 @@ namespace http {
     }
 
     // 解析报文
-    void Http::parse_packet(char *packet) {
+    void Http::parse_packet(std::string str1) {
         int i;
         int begin_index = 0;
         std::string text;
-
-        std::string str1 = packet;
 
         // line
         for (i = 0; i < str1.length(); ++i) {
@@ -188,8 +186,6 @@ namespace http {
                 return header;
             }
         }
-
     }
-
-
 }
+

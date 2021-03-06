@@ -49,11 +49,8 @@ namespace http {
 
     class Http {
     public:
-        // 运行进程
-        void process();
-
         // 初步解析报文
-        void parse_packet(char *packet);
+        void parse_packet(std::string packet);
 
         // 解析报文请求
         HTTP_PACKET::PARSE_CODE parse_method(std::string text);
@@ -66,7 +63,6 @@ namespace http {
 
         // 返回请求
         std::string do_request();
-
 
     private:
         HTTP_PACKET::HTTP_METHOD m_method;
