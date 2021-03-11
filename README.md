@@ -11,6 +11,7 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/zyxeeker/Grade-Management-System?style=for-the-badge)
 
 </div>
+
 由学校的课程设计改造而来，原版本为`Python`，`C++`版本加入服务器
 
 后面再继续完善说明
@@ -24,6 +25,7 @@
 - [x] 解析配置文件
 - [x] 自动识别网站目录
 - [ ] 完善日志模块
-- [ ] 完善线程模块
+- [x] 完善线程模块
 - [ ] 调整代码格式
-
+- [ ] epoll模块调整
+- [ ] 增加常见 METHOD 的支持
