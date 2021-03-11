@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <map>
+
 #include "../log/log.h"
 #include "../server.h"
 
@@ -50,7 +51,7 @@ namespace http {
     class Http {
     public:
         // 初步解析报文
-        void parse_packet(std::string packet);
+        void parse_packet(std::string packet, int client_num);
 
         // 解析报文请求
         HTTP_PACKET::PARSE_CODE parse_method(std::string text);
@@ -62,10 +63,14 @@ namespace http {
         HTTP_PACKET::PARSE_CODE parse_content(std::string text);
 
         // 返回请求
-        std::string do_request();
+        void do_request();
 
     private:
+//        http_conn::conn *con;
         HTTP_PACKET::HTTP_METHOD m_method;
+
+        int m_client_num;
+
         std::string m_url;
         std::string m_protocol;
         std::string m_version;
@@ -73,6 +78,7 @@ namespace http {
         std::map<std::string, std::string> m_headers;
         std::map<std::string, std::string> m_requests;
 
+        std::string m_data_body;
         std::string m_body;
     };
 

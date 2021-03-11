@@ -7,6 +7,7 @@
 #include <dirent.h>
 #include <cstring>
 #include <fstream>
+#include "../conn/conn.h"
 
 const std::string OK = " 200 OK\r\n";
 const std::string BAD_REQUEST = " 400 Bad Request\r\n";
@@ -107,10 +108,11 @@ namespace http {
     }
 
     // 解析报文
-    void Http::parse_packet(std::string str1) {
+    void Http::parse_packet(std::string str1, int client_num) {
         int i;
         int begin_index = 0;
         std::string text;
+        m_client_num = client_num;
 
         // line
         for (i = 0; i < str1.length(); ++i) {
@@ -154,7 +156,7 @@ namespace http {
     }
 
     // 返回请求
-    std::string Http::do_request() {
+    void Http::do_request() {
         std::string header;
         std::string type;
 
@@ -178,12 +180,11 @@ namespace http {
 //                std::cout << header << std::endl;
 //                std::cout << m_url << std::endl;
 //                std::cout << server::server_init::m_files[m_url] << std::endl;
-                return header;
+                http_conn::conn::send_packet(m_client_num, header);
 //                }
 
             } catch (...) {
                 header = "HTTP/1.1" + BAD_REQUEST;
-                return header;
             }
         }
     }
