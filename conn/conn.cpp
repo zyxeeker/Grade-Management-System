@@ -37,12 +37,10 @@ namespace http_conn {
 
     int conn::epoll() {
         m_epoll_fd = epoll_create1(EPOLL_CLOEXEC);
+
         m_event.data.fd = m_listen_fd;
-
-        m_event.events = EPOLLIN | EPOLLET | EPOLLRDHUP;
+        m_event.events = EPOLLIN | EPOLLET | EPOLLONESHOT;
         epoll_ctl(m_epoll_fd, EPOLL_CTL_ADD, m_listen_fd, &m_event);
-
-        m_event.events |= EPOLLONESHOT;
 
         m_wait_event = new epoll_event[m_MAX_EVENTS];
     }
@@ -57,17 +55,20 @@ namespace http_conn {
 
         while (true) {
             int event_count = epoll_wait(m_epoll_fd, m_wait_event, m_MAX_EVENTS, -1);
+            std::cout << "event:  " << event_count << std::endl;
 
             for (int j = 0; j < event_count; ++j) {
+                std::cout << "j:  " << m_wait_event[j].data.fd << std::endl;
 
                 if (m_wait_event[j].data.fd == m_listen_fd) {
 
                     while (true) {
                         m_conn = accept(m_listen_fd, (struct sockaddr *) &m_clientAddr, &m_clientAddrLen);
                         if (m_conn < 0) break;
-
-                        std::cout << m_clientAddr.sin_addr.s_addr << std::endl;
-                        std::cout << m_clientAddr.sin_port << std::endl;
+                        if (m_conn > m_MAX_CONNECTIONS) break;
+//                        std::cout << m_clientAddr.sin_addr.s_addr << std::endl;
+//                        std::cout << m_clientAddr.sin_port << std::endl;
+                        std::cout << std::endl;
 
                         memset(m_buff, 0, sizeof(m_buff));
                         m_recv_len = recv(m_conn, m_buff, sizeof(m_buff), 0);
@@ -77,15 +78,8 @@ namespace http_conn {
 
                         m_thread_pool.append_work(m_http_packet + m_conn);
                     }
-
-//                    m_event.events = EPOLLIN;
-//                    m_event.data.fd = m_conn;
-//                    epoll_ctl(m_epoll_fd, EPOLL_CTL_ADD, m_epoll_fd, &m_event);
-
-//                    send(m_conn, m_header.c_str(), m_header.length(), 0);
                 }
-//                epoll_ctl(m_epoll_fd, EPOLL_CTL_DEL, m_conn, NULL);
-//                close(m_conn);
+
             }
         }
         delete[] m_wait_event;
@@ -101,7 +95,6 @@ namespace http_conn {
         socket_init();
         // epoll启动
         epoll();
-
 
         socket_start();
 
